@@ -1,4 +1,4 @@
-package org.kybe.Commands;
+package org.kybe.commands;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -12,15 +12,15 @@ import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class executer extends Command {
-    public executer() {
+public class Executer extends Command {
+    public Executer() {
         super("executer", "executes a command <player> is replaced with all players");
     }
 
     @CommandExecutor
-    @CommandExecutor.Argument({"delay", "command"})
-    private void executer(int delay, String command) {
-        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms");
+    @CommandExecutor.Argument({"delay", "command", "includeSelf"})
+    private void executer(int delay, String command, boolean includeSelf) {
+        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : ""));
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
 
         if (connection == null) {
@@ -32,6 +32,10 @@ public class executer extends Command {
         if (playerList == null || playerList.isEmpty()) {
             ChatUtils.print("No players online");
             return;
+        }
+        if (includeSelf) {
+            Player player = Minecraft.getInstance().player;
+            playerList.removeIf(playerInfo -> playerInfo.getProfile().getId().equals(player.getUUID()));
         }
 
         Timer timer = new Timer();
@@ -49,6 +53,7 @@ public class executer extends Command {
                     Minecraft.getInstance().execute(() -> {
                         try {
                             ChatUtils.print("Sending command: " + replacedCommand);
+                            assert Minecraft.getInstance().player != null;
                             Minecraft.getInstance().player.connection.sendCommand(replacedCommand);
                         } catch (Exception e) {
                             ChatUtils.print("Error executing command for player " + playerName + ": " + e.getMessage());
