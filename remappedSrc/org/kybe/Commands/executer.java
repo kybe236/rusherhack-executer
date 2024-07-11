@@ -1,4 +1,4 @@
-package org.kybe.Commands;
+package org.kybe.commands;
 
 import org.rusherhack.client.api.feature.command.Command;
 import org.rusherhack.client.api.utils.ChatUtils;
