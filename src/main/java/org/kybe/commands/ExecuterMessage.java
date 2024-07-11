@@ -12,14 +12,14 @@ import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Executer extends Command {
-    public Executer() {
-        super("executer", "executes a command <player> is replaced with all players");
+public class ExecuterMessage extends Command {
+    public ExecuterMessage() {
+        super("executermsg", "executes a command <player> is replaced with all players");
     }
 
     @CommandExecutor
     @CommandExecutor.Argument({"delay", "command", "includeSelf"})
-    private void executer(int delay, String command, boolean includeSelf) {
+    private void ecexuterMessage(int delay, String command, boolean includeSelf) {
         ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : ""));
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection == null) {
@@ -49,9 +49,6 @@ public class Executer extends Command {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    /*
-                        * Replace the <player> placeholder with the player's name and execute the command
-                     */
                     String replacedCommand = command.replace("<player>", playerName);
                     replacedCommand = replacedCommand.replace("<location>", Minecraft.getInstance().player.getX() + " " + Minecraft.getInstance().player.getY() + " " + Minecraft.getInstance().player.getZ());
                     replacedCommand = replacedCommand.replace("<x>", String.valueOf(Minecraft.getInstance().player.getX()));
@@ -64,13 +61,12 @@ public class Executer extends Command {
                     replacedCommand = replacedCommand.replace("<stats>", Minecraft.getInstance().player.getStats().toString());
                     replacedCommand = replacedCommand.replace("<xp>", String.valueOf(Minecraft.getInstance().player.experienceProgress));
 
-
                     String finalReplacedCommand = replacedCommand;
                     Minecraft.getInstance().execute(() -> {
                         try {
                             ChatUtils.print("Sending command: " + finalReplacedCommand);
                             assert Minecraft.getInstance().player != null;
-                            Minecraft.getInstance().player.connection.sendCommand(finalReplacedCommand);
+                            Minecraft.getInstance().player.connection.sendChat(finalReplacedCommand);
                         } catch (Exception e) {
                             ChatUtils.print("Error executing command for player " + playerName + ": " + e.getMessage());
                         }
