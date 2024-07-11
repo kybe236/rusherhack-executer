@@ -1,0 +1,12 @@
+{
+  "Plugin-Class": "org.kybe.Main",
+  "Name": "exexuter",
+  "Version": "${plugin_version}",
+  "Description": "Execute command with every user online",
+  "Authors": [
+    "kybe236"
+  ],
+  "Minecraft-Versions": [
+    "1.20.4"
+  ]
+}
