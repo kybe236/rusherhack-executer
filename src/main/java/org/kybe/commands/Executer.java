@@ -22,20 +22,15 @@ public class Executer extends Command {
     private void executer(int delay, String command, boolean includeSelf) {
         ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : ""));
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
-
         if (connection == null) {
             ChatUtils.print("You are not on a server");
             return;
         }
 
         Collection<PlayerInfo> playerList = connection.getOnlinePlayers();
-        if (playerList == null || playerList.isEmpty()) {
+        if (playerList.isEmpty()) {
             ChatUtils.print("No players online");
             return;
-        }
-        if (includeSelf) {
-            Player player = Minecraft.getInstance().player;
-            playerList.removeIf(playerInfo -> playerInfo.getProfile().getId().equals(player.getUUID()));
         }
 
         Timer timer = new Timer();
@@ -45,7 +40,12 @@ public class Executer extends Command {
         for (PlayerInfo playerInfo : playerList) {
             String playerName = playerInfo.getProfile().getName();
             delayAccumulator += delay;  // Increment the delay for each player
-
+            if (!includeSelf) {
+                Player player = Minecraft.getInstance().player;
+                if (player != null && player.getUUID().equals(playerInfo.getProfile().getId())) {
+                    continue;
+                }
+            }
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
