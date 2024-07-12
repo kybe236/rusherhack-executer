@@ -58,8 +58,12 @@ public class ExecuterMessage extends Command {
                     replacedCommand = replacedCommand.replace("<pitch>", String.valueOf(Minecraft.getInstance().player.getXRot()));
                     replacedCommand = replacedCommand.replace("<health>", String.valueOf(Minecraft.getInstance().player.getHealth()));
                     replacedCommand = replacedCommand.replace("<food>", String.valueOf(Minecraft.getInstance().player.getFoodData().getFoodLevel()));
+                    replacedCommand = replacedCommand.replace("<saturation>", String.valueOf(Minecraft.getInstance().player.getFoodData().getSaturationLevel()));
                     replacedCommand = replacedCommand.replace("<stats>", Minecraft.getInstance().player.getStats().toString());
                     replacedCommand = replacedCommand.replace("<xp>", String.valueOf(Minecraft.getInstance().player.experienceProgress));
+                    replacedCommand = replacedCommand.replace("<player_s>", Minecraft.getInstance().player.getGameProfile().getName());
+                    replacedCommand = replacedCommand.replace("<uuid>", Minecraft.getInstance().player.getGameProfile().getId().toString());
+                    replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
 
                     String finalReplacedCommand = replacedCommand;
                     Minecraft.getInstance().execute(() -> {
