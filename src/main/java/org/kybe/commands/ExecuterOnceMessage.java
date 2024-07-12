@@ -37,6 +37,10 @@ public class ExecuterOnceMessage extends Command {
         replacedCommand = replacedCommand.replace("<nbt>", Minecraft.getInstance().player.getInventory().getSelected().getTag().toString());
         replacedCommand = replacedCommand.replace("<nbt_off>", Minecraft.getInstance().player.getOffhandItem().getTag().toString());
 
+        if (replacedCommand.length() > 256) {
+            ChatUtils.print("Command too long");
+            return;
+        }
         try {
             assert Minecraft.getInstance().player != null;
             Minecraft.getInstance().player.connection.sendChat(replacedCommand);

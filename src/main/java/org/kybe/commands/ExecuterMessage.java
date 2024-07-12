@@ -94,6 +94,10 @@ public class ExecuterMessage extends Command {
                     replacedCommand = replacedCommand.replace("<nbt_off>", Minecraft.getInstance().player.getOffhandItem().getTag().toString());
 
                     String finalReplacedCommand = replacedCommand;
+                    if (finalReplacedCommand.length() > 256) {
+                        ChatUtils.print("Command too long for player " + playerName);
+                        return;
+                    }
                     Minecraft.getInstance().execute(() -> {
                         try {
                             ChatUtils.print("Sending command: " + finalReplacedCommand);
