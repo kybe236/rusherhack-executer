@@ -9,11 +9,11 @@ import org.rusherhack.core.command.annotations.CommandExecutor;
 
 public class ExecuterOnceMessage extends Command {
     public ExecuterOnceMessage() {
-        super("executeroncemsg", "executes a command with some completion");
+        super("executeroncemsg", "sends an msg with some completion");
     }
 
     @CommandExecutor
-    @CommandExecutor.Argument("command")
+    @CommandExecutor.Argument("msg")
     private void executer(String command) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection == null) {
@@ -31,14 +31,14 @@ public class ExecuterOnceMessage extends Command {
         replacedCommand = replacedCommand.replace("<saturation>", String.valueOf(Minecraft.getInstance().player.getFoodData().getSaturationLevel()));
         replacedCommand = replacedCommand.replace("<xp>", String.valueOf(Minecraft.getInstance().player.experienceProgress));
         replacedCommand = replacedCommand.replace("<player_s>", Minecraft.getInstance().player.getGameProfile().getName());
-        replacedCommand = replacedCommand.replace("<uuid>", Minecraft.getInstance().player.getGameProfile().getId().toString());
+        replacedCommand = replacedCommand.replace("<uuid_s>", Minecraft.getInstance().player.getGameProfile().getId().toString());
         replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
 
         try {
             assert Minecraft.getInstance().player != null;
             Minecraft.getInstance().player.connection.sendChat(replacedCommand);
         } catch (Exception e) {
-            ChatUtils.print("Error executing command " + command + ": " + e.getMessage());
+            ChatUtils.print("Error sending msg " + command + ": " + e.getMessage());
         }
     }
 }

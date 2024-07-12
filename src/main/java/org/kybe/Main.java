@@ -1,10 +1,7 @@
 package org.kybe;
 
 import com.mojang.realmsclient.dto.PlayerInfo;
-import org.kybe.commands.Executer;
-import org.kybe.commands.ExecuterMessage;
-import org.kybe.commands.ExecuterOnce;
-import org.kybe.commands.ExecuterOnceMessage;
+import org.kybe.commands.*;
 import org.rusherhack.client.api.RusherHackAPI;
 import org.rusherhack.client.api.plugin.Plugin;
 
@@ -18,14 +15,11 @@ public class Main extends Plugin {
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterMessage());
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterOnce());
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterOnceMessage());
+        RusherHackAPI.getCommandManager().registerFeature(new ExecuterCancel());
     }
 
     @Override
     public void onUnload() {
         System.out.println("[EXECUTER] Plugin unloaded!");
-    }
-
-    public void onTick() {
-        // This method is called every tick
     }
 }

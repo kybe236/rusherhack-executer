@@ -8,11 +8,15 @@ import org.rusherhack.client.api.feature.command.Command;
 import org.rusherhack.client.api.utils.ChatUtils;
 import org.rusherhack.core.command.annotations.CommandExecutor;
 
+import java.sql.Time;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Executer extends Command {
+
+    public boolean cancel = false;
+
     public Executer() {
         super("executer", "executes a command <player> is replaced with all players");
     }
@@ -20,24 +24,34 @@ public class Executer extends Command {
     @CommandExecutor
     @CommandExecutor.Argument({"delay", "command", "includeSelf"})
     private void executer(int delay, String command, boolean includeSelf) {
-        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : ""));
-        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        cancel = false;
+        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : "")); // Print the command and delay
+
+        ClientPacketListener connection = Minecraft.getInstance().getConnection(); // Get the connection
         if (connection == null) {
             ChatUtils.print("You are not on a server");
             return;
         }
 
-        Collection<PlayerInfo> playerList = connection.getOnlinePlayers();
+        Collection<PlayerInfo> playerList = connection.getOnlinePlayers(); // Get all online players
         if (playerList.isEmpty()) {
             ChatUtils.print("No players online");
             return;
-        }
+        } // Check if there are any players online
+
+        delay = delay * 50;         // Convert delay ticks to ms
+        int delayAccumulator = 0;   // Accumulate the delay for each player
 
         Timer timer = new Timer();
-        delay = delay * 50;  // Convert delay ticks to ms
-        int delayAccumulator = 0;
 
+        /*
+         * Iterate through all players and schedule the command to be executed after the delay
+         */
         for (PlayerInfo playerInfo : playerList) {
+
+            /*
+             * Skip the player if the player is the same as the player executing the command or null
+             */
             String playerName = playerInfo.getProfile().getName();
             delayAccumulator += delay;  // Increment the delay for each player
             if (!includeSelf) {
@@ -46,12 +60,20 @@ public class Executer extends Command {
                     continue;
                 }
             }
+
+            /*
+             * Schedule the command to be executed after the delay
+             */
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    /*
-                        * Replace the <player> placeholder with the player's name and execute the command
-                     */
+                    // checks if the command should be cancelled
+                    if (cancel) {
+                        cancel = false;
+                        timer.cancel();
+                        timer.purge();
+                        return;
+                    }
                     String replacedCommand = command.replace("<player>", playerName);
                     replacedCommand = replacedCommand.replace("<location>", Minecraft.getInstance().player.getX() + " " + Minecraft.getInstance().player.getY() + " " + Minecraft.getInstance().player.getZ());
                     replacedCommand = replacedCommand.replace("<x>", String.valueOf(Minecraft.getInstance().player.getX()));
@@ -65,15 +87,14 @@ public class Executer extends Command {
                     replacedCommand = replacedCommand.replace("<stats>", Minecraft.getInstance().player.getStats().toString());
                     replacedCommand = replacedCommand.replace("<xp>", String.valueOf(Minecraft.getInstance().player.experienceProgress));
                     replacedCommand = replacedCommand.replace("<player_s>", Minecraft.getInstance().player.getGameProfile().getName());
-                    replacedCommand = replacedCommand.replace("<uuid>", Minecraft.getInstance().player.getGameProfile().getId().toString());
+                    replacedCommand = replacedCommand.replace("<uuid>",playerInfo.getProfile().getId().toString());
+                    replacedCommand = replacedCommand.replace("<uuid_s>", Minecraft.getInstance().player.getGameProfile().getId().toString());
                     replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
-
 
                     String finalReplacedCommand = replacedCommand;
                     Minecraft.getInstance().execute(() -> {
                         try {
                             ChatUtils.print("Sending command: " + finalReplacedCommand);
-                            assert Minecraft.getInstance().player != null;
                             Minecraft.getInstance().player.connection.sendCommand(finalReplacedCommand);
                         } catch (Exception e) {
                             ChatUtils.print("Error executing command for player " + playerName + ": " + e.getMessage());
@@ -81,6 +102,7 @@ public class Executer extends Command {
                     });
                 }
             }, delayAccumulator);
+            delayAccumulator += delay; // Increment the delay for each player
         }
     }
 }
