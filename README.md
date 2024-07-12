@@ -33,3 +33,5 @@ SAME AS ABOVE
 ### - \<player_s> gets the name of yourself
 ### - \<uuid_s> gets the uuid of yourself
 ### - \<server_ip> gets the uuid of the server
+### - \<nbt> gets the nbt of your held item
+### - \<nbt_off> gets the nbt of your offhand item

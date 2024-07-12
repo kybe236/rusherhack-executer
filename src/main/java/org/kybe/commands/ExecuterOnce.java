@@ -35,6 +35,9 @@ public class ExecuterOnce extends Command {
         replacedCommand = replacedCommand.replace("<player_s>", Minecraft.getInstance().player.getGameProfile().getName());
         replacedCommand = replacedCommand.replace("<uuid_s>", Minecraft.getInstance().player.getGameProfile().getId().toString());
         replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
+        //! only 1.20.4 or below
+        replacedCommand = replacedCommand.replace("<nbt>", Minecraft.getInstance().player.getInventory().getSelected().getTag().toString());
+        replacedCommand = replacedCommand.replace("<nbt_off>", Minecraft.getInstance().player.getOffhandItem().getTag().toString());
 
         try {
             assert Minecraft.getInstance().player != null;
