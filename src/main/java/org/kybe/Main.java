@@ -1,6 +1,5 @@
 package org.kybe;
 
-import com.mojang.realmsclient.dto.PlayerInfo;
 import org.kybe.commands.*;
 import org.rusherhack.client.api.RusherHackAPI;
 import org.rusherhack.client.api.plugin.Plugin;

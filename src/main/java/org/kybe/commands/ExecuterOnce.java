@@ -2,7 +2,7 @@ package org.kybe.commands;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import org.rusherhack.client.api.RusherHackAPI;
+import net.minecraft.nbt.CompoundTag;
 import org.rusherhack.client.api.feature.command.Command;
 import org.rusherhack.client.api.utils.ChatUtils;
 import org.rusherhack.core.command.annotations.CommandExecutor;
@@ -22,6 +22,7 @@ public class ExecuterOnce extends Command {
             ChatUtils.print("You are not on a server");
             return;
         }
+        assert Minecraft.getInstance().player != null;
         String replacedCommand = command.replace("<location>", Minecraft.getInstance().player.getX() + " " + Minecraft.getInstance().player.getY() + " " + Minecraft.getInstance().player.getZ());
         replacedCommand = replacedCommand.replace("<x>", String.valueOf(Minecraft.getInstance().player.getX()));
         replacedCommand = replacedCommand.replace("<y>", String.valueOf(Minecraft.getInstance().player.getY()));
@@ -36,8 +37,21 @@ public class ExecuterOnce extends Command {
         replacedCommand = replacedCommand.replace("<uuid_s>", Minecraft.getInstance().player.getGameProfile().getId().toString());
         replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
         //! only 1.20.4 or below
-        replacedCommand = replacedCommand.replace("<nbt>", Minecraft.getInstance().player.getInventory().getSelected().getTag().toString());
-        replacedCommand = replacedCommand.replace("<nbt_off>", Minecraft.getInstance().player.getOffhandItem().getTag().toString());
+        CompoundTag nbt = Minecraft.getInstance().player.getInventory().getSelected().getTag();
+        String nbtString;
+        if (nbt == null) {
+            nbtString = "{NULL}";
+        } else {
+            nbtString = nbt.toString();
+        }
+        replacedCommand = replacedCommand.replace("<nbt>", nbtString);
+        CompoundTag nbtOff = Minecraft.getInstance().player.getOffhandItem().getTag();
+        if (nbtOff == null) {
+            nbtString = "{NULL}";
+        } else {
+            nbtString = nbtOff.toString();
+        }
+        replacedCommand = replacedCommand.replace("<nbt_off>", nbtString);
 
         if (replacedCommand.length() > 256) {
             ChatUtils.print("Command too long");
