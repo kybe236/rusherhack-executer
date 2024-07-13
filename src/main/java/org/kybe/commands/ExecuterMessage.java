@@ -5,13 +5,13 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import org.rusherhack.client.api.RusherHackAPI;
 import org.rusherhack.client.api.feature.command.Command;
 import org.rusherhack.client.api.utils.ChatUtils;
+import org.rusherhack.core.command.AbstractCommand;
 import org.rusherhack.core.command.annotations.CommandExecutor;
 
-import java.util.Collection;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class ExecuterMessage extends Command {
 
@@ -22,8 +22,8 @@ public class ExecuterMessage extends Command {
     }
 
     @CommandExecutor
-    @CommandExecutor.Argument({"delay", "command", "includeSelf"})
-    private void executer(int delay, String command, boolean includeSelf) {
+    @CommandExecutor.Argument({"delay", "command", "includeSelf", "useExcludeList"})
+    private void executer(int delay, String command, boolean includeSelf, boolean useExcludeList) {
         cancel = false;
         ChatUtils.print("Sending msg: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : "")); // Print the command and delay
 
@@ -38,6 +38,7 @@ public class ExecuterMessage extends Command {
             ChatUtils.print("No players online");
             return;
         } // Check if there are any players online
+
 
         delay = delay * 50;         // Convert delay ticks to ms
         int delayAccumulator = 0;   // Accumulate the delay for each player
@@ -57,6 +58,17 @@ public class ExecuterMessage extends Command {
             if (!includeSelf) {
                 Player player = Minecraft.getInstance().player;
                 if (player != null && player.getUUID().equals(playerInfo.getProfile().getId())) {
+                    continue;
+                }
+            }
+            if (useExcludeList) {
+                AbstractCommand executer = RusherHackAPI.getCommandManager().getFeature("executerignorelist").orElse(null);
+                if (executer == null) {
+                    ChatUtils.print("ExecuterIgnoreList not found");
+                    return;
+                }
+                ArrayList<String> ignoredPlayers = (ArrayList<String>) ((ExecuterIgnoreList) executer).ignoredPlayers;
+                if (ignoredPlayers.contains(playerName)) {
                     continue;
                 }
             }

@@ -15,6 +15,7 @@ public class Main extends Plugin {
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterOnce());
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterOnceMessage());
         RusherHackAPI.getCommandManager().registerFeature(new ExecuterCancel());
+        RusherHackAPI.getCommandManager().registerFeature(new ExecuterIgnoreList());
     }
 
     @Override
