@@ -3,10 +3,10 @@
 **delay:** delay between commands
 **command:** executes the given string but does it for every player and replaces \<player> with the coresponding player. Also see below for more \<> Operator
 **includeSelf:** Should it also run for yourself?
+**useIgnoreList:** Should it use the IgnoreList
 
 ### -***executerMessage:** Same as above, but sends a chat message instead of a command.
 SAME AS ABOVE
-
 
 ### -***executeronce:** Executes the give command once and does not fill \<player>
 **command:** the command for full list of \<> option see below
@@ -15,6 +15,12 @@ SAME AS ABOVE
 SAME AS ABOVE
 
 ### -***executercancel:** Cancels all execution
+
+### -***executerignorelist:**
+- ***executerignorelist** add player: adds the player
+- ***executerignorelist** remove player: removes the player
+- ***executerignorelist** clear: clears the list
+- ***executerignorelist** list: list the ignore list
 
 
 # <> Operator
