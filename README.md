@@ -1,18 +1,15 @@
+### [CHANGELOG](CHANGELOG.md)
 # Command Structure
 ### -***executer:**
 **delay:** delay between commands
 **command:** executes the given string but does it for every player and replaces \<player> with the coresponding player. Also see below for more \<> Operator
 **includeSelf:** Should it also run for yourself?
 **useIgnoreList:** Should it use the IgnoreList
-
-### -***executerMessage:** Same as above, but sends a chat message instead of a command.
-SAME AS ABOVE
+**msg** Should it send a chat message instead of a command
 
 ### -***executeronce:** Executes the give command once and does not fill \<player>
 **command:** the command for full list of \<> option see below
-
-### -***executeroncemsg:** The same as above, but sends a chat message instead of a command.
-SAME AS ABOVE
+**msg** Should it send a chat message instead of a command
 
 ### -***executercancel:** Cancels all execution
 
@@ -22,11 +19,18 @@ SAME AS ABOVE
 - ***executerignorelist** clear: clears the list
 - ***executerignorelist** list: list the ignore list
 
+### -***executerloop:** Loops the given command
+**delay:** delay between commands
+**command:** executes the given string but does it for every player and replaces \<player> with the coresponding player. Also see below for more \<> Operator
+**includeSelf:** Should it also run for yourself?
 
 # <> Operator
 ## Only Executer
 ### - \<player> gets the name of the player
 ### -\<uuid> gets the uuid of the player
+### -\<ping> gets the ping of the player
+### -\<gamemode> gets the gamemode of the player
+### -\<skin> gets the skin of the player
 
 ## Everywhere
 ### - \<location> gets the player's position in the format "X Y Z"
@@ -41,3 +45,11 @@ SAME AS ABOVE
 ### - \<server_ip> gets the uuid of the server
 ### - \<nbt> gets the nbt of your held item
 ### - \<nbt_off> gets the nbt of your offhand item
+### - \<ping_s> gets the ping of yourself
+### - \<gamemode_s> gets the gamemode of yourself
+### - \<skin_s> gets the skin of yourself
+### - \<tablistname_s> gets the tablist name of the player
+### - \<ping> gets the ping of the player
+### - \<gamemode> gets the gamemode of the player
+### - \<skin> gets the skin of the player
+### - \<tps> gets the tps of the server

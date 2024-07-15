@@ -13,6 +13,9 @@ public class ExecuterCancel extends Command {
 
     @CommandExecutor
     private void executerCancel() {
+        /*
+         * Get the Executer class and set the cancel variable to true
+         */
         AbstractCommand executer = RusherHackAPI.getCommandManager().getFeature("executer").orElse(null);
         if (executer == null) {
             ChatUtils.print("Executer not found");
@@ -20,11 +23,14 @@ public class ExecuterCancel extends Command {
         }
         ((Executer) executer).cancel = true;
 
-        AbstractCommand command = RusherHackAPI.getCommandManager().getFeature("executermsg").orElse(null);
+        /*
+         * Get the ExecuterLoop class and set the cancel variable to true
+         */
+        AbstractCommand command = RusherHackAPI.getCommandManager().getFeature("executerloop").orElse(null);
         if (command == null) {
             ChatUtils.print("ExecuterMsg not found");
             return;
         }
-        ((ExecuterMessage) command).cancel = true;
+        ((ExecuterLoop) command).cancel = true;
     }
 }

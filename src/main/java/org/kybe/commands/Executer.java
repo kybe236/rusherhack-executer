@@ -1,20 +1,19 @@
 package org.kybe.commands;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import org.kybe.Main;
 import org.rusherhack.client.api.RusherHackAPI;
 import org.rusherhack.client.api.feature.command.Command;
 import org.rusherhack.client.api.utils.ChatUtils;
 import org.rusherhack.core.command.AbstractCommand;
 import org.rusherhack.core.command.annotations.CommandExecutor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.nio.charset.IllegalCharsetNameException;
+import java.util.*;
 
 public class Executer extends Command {
 
@@ -25,27 +24,30 @@ public class Executer extends Command {
     }
 
     @CommandExecutor
-    @CommandExecutor.Argument({"delay", "command", "includeSelf", "useExcludeList"})
-    private void executer(int delay, String command, boolean includeSelf, boolean useExcludeList) {
+    @CommandExecutor.Argument({"delay", "command", "includeSelf", "useExcludeList", "msg" })
+    private void executer(int delay, String command, Optional<Boolean> includeSelf, Optional<Boolean> useExcludeList, Optional<Boolean> msg) {
         cancel = false;
-        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ms" + (includeSelf ? " including self" : "")); // Print the command and delay
+        ChatUtils.print("Executing command: " + command + " with a delay of " + delay + " ticks" + (includeSelf.isPresent() && includeSelf.get() ? " including self" : "")); // Print the command and delay
 
-        ClientPacketListener connection = Minecraft.getInstance().getConnection(); // Get the connection
+        ClientPacketListener connection = mc.getConnection(); // Get the connection
         if (connection == null) {
             ChatUtils.print("You are not on a server");
             return;
         }
 
         Collection<PlayerInfo> playerList = connection.getOnlinePlayers(); // Get all online players
+        /*
+            * Check if there are any players online
+         */
         if (playerList.isEmpty()) {
             ChatUtils.print("No players online");
             return;
-        } // Check if there are any players online
+        }
 
         delay = delay * 50;         // Convert delay ticks to ms
         int delayAccumulator = 0;   // Accumulate the delay for each player
 
-        Timer timer = new Timer();
+        Timer timer = new Timer();  // Create a timer to schedule the command
 
         /*
          * Iterate through all players and schedule the command to be executed after the delay
@@ -57,13 +59,19 @@ public class Executer extends Command {
              */
             String playerName = playerInfo.getProfile().getName();
             delayAccumulator += delay;  // Increment the delay for each player
-            if (!includeSelf) {
-                Player player = Minecraft.getInstance().player;
+            /*
+             * Skip self if includeSelf is false
+             */
+            if (includeSelf.isPresent() && !includeSelf.get()) {
+                Player player = mc.player;
                 if (player != null && player.getUUID().equals(playerInfo.getProfile().getId())) {
                     continue;
                 }
             }
-            if (useExcludeList) {
+            /*
+             * skip player if player is in the ignore list if useExcludeList is true
+             */
+            if (useExcludeList.isPresent() && useExcludeList.get()) {
                 AbstractCommand executer = RusherHackAPI.getCommandManager().getFeature("executerignorelist").orElse(null);
                 if (executer == null) {
                     ChatUtils.print("ExecuterIgnoreList not found");
@@ -88,48 +96,45 @@ public class Executer extends Command {
                         timer.purge();
                         return;
                     }
-                    String replacedCommand = command.replace("<player>", playerName);
-                    assert Minecraft.getInstance().player != null;
-                    replacedCommand = replacedCommand.replace("<location>", Minecraft.getInstance().player.getX() + " " + Minecraft.getInstance().player.getY() + " " + Minecraft.getInstance().player.getZ());
-                    replacedCommand = replacedCommand.replace("<x>", String.valueOf(Minecraft.getInstance().player.getX()));
-                    replacedCommand = replacedCommand.replace("<y>", String.valueOf(Minecraft.getInstance().player.getY()));
-                    replacedCommand = replacedCommand.replace("<z>", String.valueOf(Minecraft.getInstance().player.getZ()));
-                    replacedCommand = replacedCommand.replace("<yaw>", String.valueOf(Minecraft.getInstance().player.getYRot()));
-                    replacedCommand = replacedCommand.replace("<pitch>", String.valueOf(Minecraft.getInstance().player.getXRot()));
-                    replacedCommand = replacedCommand.replace("<health>", String.valueOf(Minecraft.getInstance().player.getHealth()));
-                    replacedCommand = replacedCommand.replace("<food>", String.valueOf(Minecraft.getInstance().player.getFoodData().getFoodLevel()));
-                    replacedCommand = replacedCommand.replace("<saturation>", String.valueOf(Minecraft.getInstance().player.getFoodData().getSaturationLevel()));
-                    replacedCommand = replacedCommand.replace("<xp>", String.valueOf(Minecraft.getInstance().player.experienceProgress));
-                    replacedCommand = replacedCommand.replace("<player_s>", Minecraft.getInstance().player.getGameProfile().getName());
-                    replacedCommand = replacedCommand.replace("<uuid>",playerInfo.getProfile().getId().toString());
-                    replacedCommand = replacedCommand.replace("<uuid_s>", Minecraft.getInstance().player.getGameProfile().getId().toString());
-                    replacedCommand = replacedCommand.replace("<server_ip>", Minecraft.getInstance().getCurrentServer() != null ? Minecraft.getInstance().getCurrentServer().ip : "null");
-                    //! only 1.20.4 or below
-                    CompoundTag nbt = Minecraft.getInstance().player.getInventory().getSelected().getTag();
-                    String nbtString;
-                    if (nbt == null) {
-                        nbtString = "{NULL}";
-                    } else {
-                        nbtString = nbt.toString();
-                    }
-                    replacedCommand = replacedCommand.replace("<nbt>", nbtString);
-                    CompoundTag nbtOff = Minecraft.getInstance().player.getOffhandItem().getTag();
-                    if (nbtOff == null) {
-                        nbtString = "{NULL}";
-                    } else {
-                        nbtString = nbtOff.toString();
-                    }
-                    replacedCommand = replacedCommand.replace("<nbt_off>", nbtString);
 
-                    String finalReplacedCommand = replacedCommand;
+                    /*
+                     * Do formatting that requires the player object
+                     */
+                    String replacedCommand = command.replace("<player>", playerName);
+                    replacedCommand = replacedCommand.replace("<uuid>",playerInfo.getProfile().getId().toString());
+                    replacedCommand = replacedCommand.replace("<ping>", String.valueOf(playerInfo.getLatency()));
+                    replacedCommand = replacedCommand.replace("<gamemode>" , playerInfo.getGameMode().getName());
+                    replacedCommand = replacedCommand.replace("<skin>", Objects.requireNonNull(playerInfo.getSkin().textureUrl()));
+                    String TabListName = Objects.requireNonNull(playerInfo.getTabListDisplayName()).getString();
+                    System.out.println(TabListName);
+                    replacedCommand = replacedCommand.replace("<tablistname>", SharedConstants.filterText(TabListName, false));
+                    /*
+                     * Do formatting that doesn't require the player object
+                     */
+                    Main.format(replacedCommand);
+
+
+                    String finalReplacedCommand = replacedCommand; // Final replaced command
+                    /*
+                     * Check if the command is too long
+                     */
                     if (finalReplacedCommand.length() > 256) {
                         ChatUtils.print("Command too long for player " + playerName);
                         return;
                     }
-                    Minecraft.getInstance().execute(() -> {
+
+                    /*
+                     * Send the command to the server
+                     */
+                    mc.execute(() -> {
                         try {
-                            ChatUtils.print("Sending command: " + finalReplacedCommand);
-                            Minecraft.getInstance().player.connection.sendCommand(finalReplacedCommand);
+                            assert mc.player != null;
+                            if (msg.isPresent() && msg.get()) {
+                                mc.player.connection.sendChat(finalReplacedCommand);
+                            } else {
+                                ChatUtils.print("Sending command: " + finalReplacedCommand);
+                                mc.player.connection.sendCommand(finalReplacedCommand);
+                            }
                         } catch (Exception e) {
                             ChatUtils.print("Error executing command for player " + playerName + ": " + e.getMessage());
                         }
